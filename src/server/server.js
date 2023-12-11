@@ -16,6 +16,7 @@ import middlewares from './middlewares';
 import headerParser from './utils/headerParser';
 import getAuthHelperInstance from './auth/authHelper';
 import downloadRouter from './download';
+import ardacRouter from './ardac';
 import CodedError from './utils/error';
 import { statusRouter, versionRouter } from './endpoints';
 
@@ -86,6 +87,34 @@ const startServer = async () => {
         res.status(500).send(err);
       }
     },
+  );
+
+  app.get(
+      '/ardacGet',
+      ardacRouter,
+      (err, req, res, next) => { // eslint-disable-line no-unused-vars
+        if (err instanceof CodedError) {
+          // deepcode ignore ServerLeak: no important information exists in error
+          res.status(err.code).send(err.msg);
+        } else {
+          // deepcode ignore ServerLeak: no important information exists in error
+          res.status(500).send(err);
+        }
+      },
+  );
+
+  app.post(
+      '/ardac',
+      ardacRouter,
+      (err, req, res, next) => { // eslint-disable-line no-unused-vars
+          if (err instanceof CodedError) {
+              // deepcode ignore ServerLeak: no important information exists in error
+              res.status(err.code).send(err.msg);
+          } else {
+              // deepcode ignore ServerLeak: no important information exists in error
+              res.status(500).send(err);
+          }
+      },
   );
 
   app.listen(config.port, () => {
