@@ -10,7 +10,7 @@ const ardacRouter = async (req, res, next) => {
   // TODO: Caution! No auth, see download.js for tiered auth example
 
   try {
-    const data = JSON.stringify({ message: 'Hello, world!', x: 5, y: 6 });
+    const data = JSON.stringify({ message: 'Hello, world!', type: req.body.type, x: 5, y: 6 });
 
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     res.send(data);

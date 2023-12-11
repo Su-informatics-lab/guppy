@@ -89,20 +89,6 @@ const startServer = async () => {
     },
   );
 
-  app.get(
-      '/ardacGet',
-      ardacRouter,
-      (err, req, res, next) => { // eslint-disable-line no-unused-vars
-        if (err instanceof CodedError) {
-          // deepcode ignore ServerLeak: no important information exists in error
-          res.status(err.code).send(err.msg);
-        } else {
-          // deepcode ignore ServerLeak: no important information exists in error
-          res.status(500).send(err);
-        }
-      },
-  );
-
   app.post(
       '/ardac',
       ardacRouter,
