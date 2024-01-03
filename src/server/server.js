@@ -2,10 +2,10 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import depthLimit from 'graphql-depth-limit';
-import { ApolloServer } from '@apollo/server';
-import { expressMiddleware } from '@apollo/server/express4';
-import { makeExecutableSchema } from 'graphql-tools';
-import { applyMiddleware } from 'graphql-middleware';
+import {ApolloServer} from '@apollo/server';
+import {expressMiddleware} from '@apollo/server/express4';
+import {makeExecutableSchema} from 'graphql-tools';
+import {applyMiddleware} from 'graphql-middleware';
 import bodyParser from 'body-parser';
 import esInstance from './es/index';
 import getResolver from './resolvers';
@@ -16,9 +16,8 @@ import middlewares from './middlewares';
 import headerParser from './utils/headerParser';
 import getAuthHelperInstance from './auth/authHelper';
 import downloadRouter from './download';
-import ardacRouter from './ardac';
 import CodedError from './utils/error';
-import { statusRouter, versionRouter } from './endpoints';
+import {statusRouter, versionRouter} from './endpoints';
 
 const app = express();
 app.use(cors());
@@ -89,19 +88,23 @@ const startServer = async () => {
     },
   );
 
-  app.post(
-      '/ardac',
-      ardacRouter,
-      (err, req, res, next) => { // eslint-disable-line no-unused-vars
-          if (err instanceof CodedError) {
-              // deepcode ignore ServerLeak: no important information exists in error
-              res.status(err.code).send(err.msg);
-          } else {
-              // deepcode ignore ServerLeak: no important information exists in error
-              res.status(500).send(err);
-          }
-      },
-  );
+    app.use(
+        '/ardac',
+        cors(),
+        expressMiddleware(server, {
+            context: async ({ req }) => {
+                log.info('[ardac] ', JSON.stringify(req.body, null, 4));
+
+                const jwt = headerParser.parseJWT(req);
+                const authHelper = await getAuthHelperInstance(jwt);
+                return {
+                    authHelper,
+                };
+            },
+            // bind graphql server to express app at config.path
+            path: config.path,
+        }),
+    );
 
   app.listen(config.port, () => {
     log.info(`[Server] guppy listening on port ${config.port}!`);
